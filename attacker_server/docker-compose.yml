@@ -1,0 +1,12 @@
+services:
+  receiver:
+    build: .
+    container_name: post-receiver
+    ports:
+      - "9001:9001"
+    volumes:
+      - ./received_files:/app/received_files
+    restart: unless-stopped
+
+volumes:
+  received_files:

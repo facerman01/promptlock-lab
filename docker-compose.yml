@@ -1,0 +1,29 @@
+services:
+  ollama:
+    image: ollama/ollama
+    container_name: ollama-server
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root.ollama
+
+  victim:
+      image: ubuntu:22.04
+      container_name: promptlock-victim
+      stdin_open: true
+      tty: true
+      volumes:
+        - ./victim_files:/home/victim/data
+      depends_on:
+        - ollama
+      command: >
+        bash -c "
+        apt-get update && 
+        apt-get install -y curl ca-certificates golang-go git sudo && 
+        useradd -m -s /bin/bash victim && 
+        chown -R victim:victim /home/victim && 
+        su - victim -c 'tail -f /dev/null'
+        "
+
+volumes:
+  ollama_data:
