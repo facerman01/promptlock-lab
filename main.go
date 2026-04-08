@@ -18,7 +18,7 @@ var _ = io.Copy // Use unused import
 
 // Configuration for the simulation
 var config = map[string]string{
-	"ollama_endpoint": "http://ollama-server:11434/api/generate",
+	"ollama_endpoint": "http://localhost:11434/api/generate",
 	"model_name":      "gpt-oss:20b", // Default fallback
 	"exfiltration_url": "http://host.docker.internal:9001", // Change to 
 }
