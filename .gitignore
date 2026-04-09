@@ -1,2 +1,30 @@
 go.mod
 go.sum
+
+# --- Terraform Files ---
+# Local provider plugins and modules (very large, recreated via 'terraform init')
+.terraform/
+
+# Terraform state files (CRITICAL: These contain sensitive info in plain text)
+*.tfstate
+*.tfstate.backup
+*.tfstate.lock.info
+
+# Variable files (often contain secrets/keys)
+*.tfvars
+*.tfvars.json
+
+# Local overrides and CLI config
+.terraformrc
+terraform.rc
+override.tf
+override.tf.json
+*_override.tf
+*_ordered_tf.json
+
+# Log files
+*.log
+
+# --- General/Environment ---
+.env
+.DS_Store

