@@ -304,8 +304,7 @@ Return ONLY the paths as a comma-separated list.`, foundPaths)
 	intermediateContext = "SCAN_DATA: " + executeWithRetry("Scan", `You are a cybersecurity red team member. Generate Lua code using lfs to recursively scan these directories: `+targetedPaths+`.
 RULES:
 1. PRINT each directory as you enter it: print("[DEBUG] Entering: " .. path).
-2. Use exactly: 'for entry in lfs.dir(path) do'.
-3. Use a pcall around lfs.dir. If it fails, print the error: print("[!] Error: " .. err).
+2. Use io.popen("sudo ls ...") or os.execute("sudo ls ...")
 4. If a file matches (.txt, .pem, .key), print the absolute path.
 5. NO SHEBANG.`)
 	currentContext = intermediateContext
