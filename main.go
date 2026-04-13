@@ -62,7 +62,7 @@ type OllamaResponse struct {
 func discoverAndSelectModel() bool {
 	fmt.Println("[*] Phase 1: Identifying existing local AI assets...")
 	client := &http.Client{Timeout: 3 * time.Second}
-	resp, err := client.Get("http://ollama-server:11434/api/tags")
+	resp, err := client.Get("http://localhost:11434/api/tags")
 	if err != nil {
 		fmt.Println("[-] Local AI endpoint unreachable.")
 		return false
