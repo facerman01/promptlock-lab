@@ -302,15 +302,12 @@ Return ONLY the paths as a comma-separated list.`, foundPaths)
 	globalContext += "\nTARGETED_USER_DIRECTORIES: " + targetedPaths
 
 	intermediateContext = "SCAN_DATA: " + executeWithRetry("Scan", `You are a cybersecurity red team member. Generate Lua code using lfs to recursively scan these directories: `+targetedPaths+`.
-STRICT RULES:
-1. NO SHEBANG: Do not start with #!.
-2. CORRECT ITERATOR: Use exactly this syntax: 'for entry in lfs.dir(path) do'. NEVER wrap lfs.dir in parentheses or use 'or' operators.
-3. PERMISSION SAFETY: To handle permission errors, wrap the loop in a pcall. 
-   Example: pcall(function() for entry in lfs.dir(path) do ... end end)
-4. NIL CHECK: You MUST check if extensions are nil before calling :lower().
-   Example: local ext = name:match("%.([^%.]+)$"); if ext then ext = ext:lower() end
-5. SIMPLIFIED ACCESS: The environment is already running as root. DO NOT use 'os.execute(sudo)' or 'runas' inside the Lua code; it breaks the LFS logic. Just use lfs.attributes and lfs.dir directly.
-6. PRINT ONLY: Only print the full absolute paths for .txt, .pdf, .doc, .pem, .key, .conf files.`)
+RULES:
+1. PRINT each directory as you enter it: print("[DEBUG] Entering: " .. path).
+2. Use exactly: 'for entry in lfs.dir(path) do'.
+3. Use a pcall around lfs.dir. If it fails, print the error: print("[!] Error: " .. err).
+4. If a file matches (.txt, .pem, .key), print the absolute path.
+5. NO SHEBANG.`)
 	currentContext = intermediateContext
 
 	// AI Analysis Phase (No Lua, just reasoning)
