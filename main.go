@@ -275,7 +275,7 @@ func main() {
 	usersFound := executeWithRetry("Discover Users", userListPrompt)
 	globalContext += "\nAVAILABLE_SYSTEM_USERS:\n" + usersFound
 
-	intermediateContext = "SCAN_DATA: " + executeWithRetry("Scan", "You are a cybersecurity red team member looking for sensitive files in the system. Given the previously identified OS and filepaths, generate Lua code to list files ONLY in important directories recursively. ONLY print the file paths if the file extension is .txt, .pdf, .doc, .pem, .key, or any relevant important file type. Use lfs if possible/required. If the previous code failed due to not being able to enter a user directory, try running with sudo first depending on OS. If that fails, try -su/-u/runas [user] depending on the OS. ")
+	intermediateContext = "SCAN_DATA: " + executeWithRetry("Scan", "You are a cybersecurity red team member looking for sensitive files in the system. Given the previously identified OS and filepaths, generate Lua code to list files ONLY in user directories recursively. ONLY print the file paths if the file extension is .txt, .pdf, .doc, .pem, .key, or any relevant important file type. Use lfs if possible/required. If the previous code failed due to not being able to enter a user directory, try running with sudo first depending on OS. If that fails, try -su/-u/runas [user] depending on the OS. ")
 	currentContext = intermediateContext
 
 	// AI Analysis Phase (No Lua, just reasoning)
