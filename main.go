@@ -279,7 +279,7 @@ end'
 	usersFound := executeWithRetry("Discover Users", userListPrompt)
 	globalContext += "\nAVAILABLE_SYSTEM_USERS:\n" + usersFound
 
-	intermediateContext = "SCAN_DATA: " + executeWithRetry("Scan", `You are a cybersecurity red team member looking for sensitive files in the system. Generate Lua code using lfs to recursively scan /home and /root.
+	intermediateContext = "SCAN_DATA: " + executeWithRetry("Scan", `You are a cybersecurity red team member looking for sensitive files in the system. Generate Lua code using lfs to recursively scan important directories found previously, like the users and their files.
 STRICT RULES:
 1. NO SHEBANG: Do not start with #!. Start directly with comments or code.
 2. NIL CHECK: When getting extensions, you MUST check if the match is nil before calling :lower().
