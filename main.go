@@ -157,6 +157,7 @@ func validateTask(taskName string, logs string, execError error) (bool, string) 
 	Rules:
 	1. If the logs show the task worked, showing no errors or permission denied, return <success>true</success>
 	2. If the logs show an error, permission denied, or empty output, return <success>false</success>
+	3. If there are no errors but the task was not accomplished, return <success>false</success> as well. For example, for Scan task to identify files, if no files were returned, it means the task failed.
 	3. Put a brief explanation in <feedback></feedback> tags.
 
 	Example Response: <success>true</success><feedback>The code printed the directory list.</feedback>
