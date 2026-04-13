@@ -266,7 +266,11 @@ func main() {
 	// --- NEW STEP: USER DISCOVERY ---
 	fmt.Println("[*] Phase 1.5: Harvesting System User List...")
 	userListPrompt := `Using the identified OS, generate Lua code to list all human users.
-	- For Linux/Unix: Print the names from /etc/passwd that have a real shell (grep -v /nologin).
+	- For Linux/Unix: Print the names from /etc/passwd that have 
+	'local uid = tonumber(fields[3])
+if uid >= 1000 or uid == 0 then
+    print(username)
+end'
 	- For Windows: Execute 'net user' and print the output.
 	- For macOS: Execute 'dscl . list /Users'.
 	Only print the usernames, one per line.`
