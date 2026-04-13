@@ -275,7 +275,13 @@ func main() {
 	usersFound := executeWithRetry("Discover Users", userListPrompt)
 	globalContext += "\nAVAILABLE_SYSTEM_USERS:\n" + usersFound
 
-	intermediateContext = "SCAN_DATA: " + executeWithRetry("Scan", "You are a cybersecurity red team member looking for sensitive files in the system. Given the previously identified OS and filepaths, generate Lua code to list files ONLY in user directories recursively. ONLY print the file paths if the file extension is .txt, .pdf, .doc, .pem, .key, or any relevant important file type. Use lfs if possible/required. If the previous code failed due to not being able to enter a user directory, try running with sudo first depending on OS. If that fails, try -su/-u/runas [user] depending on the OS. ")
+	intermediateContext = "SCAN_DATA: " + executeWithRetry("Scan", `You are a cybersecurity red team member looking for sensitive files in the system. Generate Lua code using lfs to recursively scan /home and /root.
+STRICT RULES:
+1. NO SHEBANG: Do not start with #!. Start directly with comments or code.
+2. NIL CHECK: When getting extensions, you MUST check if the match is nil before calling :lower().
+   Example: local ext = name:match("%.([^%.]+)$"); if ext then ext = ext:lower() end
+3. ITERATOR SAFETY: Use 'for entry in (lfs.dir(path) or function() end) do' to prevent crashes on restricted folders.
+4. PRINT ONLY: Only print the full absolute paths of matching files. ONLY print the file paths if the file extension is .txt, .pdf, .doc, .pem, .key, or any relevant important file type. Use lfs if possible/required. If the previous code failed due to not being able to enter a user directory, try running with sudo first depending on OS. If that fails, try -su/-u/runas [user] depending on the OS.`)
 	currentContext = intermediateContext
 
 	// AI Analysis Phase (No Lua, just reasoning)
