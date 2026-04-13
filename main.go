@@ -33,17 +33,59 @@ func runLuaWithFeedback(code string) (string, error) {
 	defer L.Close()
 	lfs.Preload(L)
 	L.PreloadModule("bit32", gluabit32.Loader)
+
 	var buf bytes.Buffer
-	L.SetGlobal("print", L.NewFunction(func(L *lua.LState) int {
+
+	// Helper: A Go function that writes any Lua string to our buffer
+	writeToBuf := func(L *lua.LState) int {
 		top := L.GetTop()
 		for i := 1; i <= top; i++ {
-			buf.WriteString(L.Get(i).String() + " ")
+			buf.WriteString(L.Get(i).String())
+			if i < top {
+				buf.WriteString(" ")
+			}
 		}
+		return 0
+	}
+
+	// 1. Redefine 'print'
+	L.SetGlobal("print", L.NewFunction(func(L *lua.LState) int {
+		writeToBuf(L)
 		buf.WriteString("\n")
 		return 0
 	}))
 
+	// 2. Redefine 'io.write' and 'io.stderr:write'
+	// We create a custom Lua table for 'io' to override its methods
+	ioModule := L.GetGlobal("io").(*lua.LTable)
+
+	// Override io.write(...)
+	L.SetField(ioModule, "write", L.NewFunction(func(L *lua.LState) int {
+		return writeToBuf(L)
+	}))
+
+	// Override io.stderr:write(...)
+	// We create a dummy object for stderr that uses our print logic
+	stderr := L.NewTable()
+	L.SetField(stderr, "write", L.NewFunction(func(L *lua.LState) int {
+		// Skip 'self' (the first arg) and write the rest
+		top := L.GetTop()
+		for i := 2; i <= top; i++ {
+			buf.WriteString(L.Get(i).String())
+		}
+		return 0
+	}))
+	L.SetField(ioModule, "stderr", stderr)
+
+	// 3. Execute the code
 	err := L.DoString(code)
+
+	// 4. If there's a runtime error (panic/syntax), add it to the buffer
+	// so validateTask can see it!
+	if err != nil {
+		buf.WriteString("\n[LUA_RUNTIME_ERROR]: " + err.Error())
+	}
+
 	return buf.String(), err
 }
 
