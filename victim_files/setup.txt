@@ -1,0 +1,65 @@
+<ollama download>
+# linux
+    curl -fsSL https://ollama.com/install.sh | sh
+
+    
+    
+# windows !?
+    # 1. Disable the PowerShell Progress Bar
+    $ProgressPreference = 'SilentlyContinue'
+
+    # 2. Define your variables
+    $url = "https://github.com/ollama/ollama/releases/latest/download/ollama-windows-amd64.zip"
+    $zipPath = "$env:TEMP\ollama.zip"
+
+    # 3. Use the raw .NET framework for maximum speed
+    Write-Host "Starting high-speed download..."
+    $webClient = New-Object System.Net.WebClient
+    $webClient.DownloadFile($url, $zipPath)
+    Write-Host "Download complete!"
+
+    # 4. Set the destination folder
+    $installDir = "C:\Ollama"
+
+    # 5. Extract the downloaded zip file
+    Write-Host "Extracting files to $installDir..."
+    Expand-Archive -Path "$env:TEMP\ollama.zip" -DestinationPath $installDir -Force
+
+    # 6. Add to the current session's PATH so Windows knows what 'ollama' is
+    $env:Path += ";$installDir"
+    
+    # 6.1 Add to path permanently
+    $sysPath = [Environment]::GetEnvironmentVariable("Path", "Machine")
+    [Environment]::SetEnvironmentVariable("Path", "$sysPath;C:\Ollama", "Machine")
+
+    # 6.2 Start the Engine
+    Start-Process -FilePath "C:\Ollama\ollama.exe" -ArgumentList "serve" -WindowStyle Hidden
+
+    # 7. Verify it works!
+    ollama --version
+
+<setting up users in new environment>
+# linux #
+    sudo adduser <username>
+
+    #adding files
+    echo "Hello from the security audit" | sudo tee /home/bob/audit.txt
+
+    #download ollama
+    curl -fsSL https://ollama.com/install.sh | sh
+
+# windows #
+    # Create the user
+    net user YourUsername YourPassword123! /add
+
+    # Ensure the password never expires (optional)
+    wmic useraccount where "Name='YourUsername'" set PasswordExpires=FALSE
+    
+    #connecting to ollama cloud models
+    # 1 generate key
+    ssh-keygen -t ed25519
+
+    #2 get key
+    Get-Content "$env:USERPROFILE\.ssh\id_ed25519.pub"
+
+    #3 add key to ollama under "Device Keys"

