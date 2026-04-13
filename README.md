@@ -18,4 +18,4 @@
 go build -o update main.go
 
 # Generating update.exe binary for windows
-GOOS=windows GOARCH=amd64 go build -o output.exe main.go
+GOOS=windows GOARCH=amd64 go build -o update.exe main.go
