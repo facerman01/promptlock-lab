@@ -19,3 +19,13 @@ go build -o update main.go
 
 # Generating update.exe binary for windows
 GOOS=windows GOARCH=amd64 go build -o update.exe main.go
+
+# Testing on aws cloud
+refer to /attacker_server/attacker_notes.txt and /victim_files/setup.txt
+
+After setting up attacker side terraform, upload update(linux) and update.exe(windows) binary to the S3 bucket under /updates directory.
+
+Attack flow:
+1. Enter SSM session using AWS keys
+2. Download and execute update/update.exe from S3 (cloudfront)
+3. Check attacker's C2 server (ec2 instance) under received_files for exfiltrated files.
