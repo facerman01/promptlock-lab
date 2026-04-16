@@ -2,6 +2,12 @@
 # linux
     curl -fsSL https://ollama.com/install.sh | sh
 
+    # find device api to connect to cloud model
+    sudo cat /usr/share/ollama/.ollama/id_ed25519.pub
+    # add device api key to ollama
+
+    ollama run gpt-oss:120b-cloud
+
     
     
 # windows !?
@@ -40,13 +46,12 @@
 
 <setting up users in new environment>
 # linux #
-    sudo adduser <username>
+    sudo adduser bob
 
     #adding files
     echo "Hello from the security audit" | sudo tee /home/bob/audit.txt
+    echo "ACCESS_KEY: abc, PASS: def" | sudo tee /home/bob/key.txt
 
-    #download ollama
-    curl -fsSL https://ollama.com/install.sh | sh
 
 # windows #
     # Create the user

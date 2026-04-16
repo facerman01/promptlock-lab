@@ -47,7 +47,7 @@ resource "aws_security_group" "attacker_sg" {
 }
 
 resource "aws_instance" "attacker_server" {
-  ami           = "ami-0c7217cdde317cfec" # Ubuntu 24.04 LTS
+  ami           = "ami-0ec10929233384c7f" # Ubuntu 24.04 LTS
   instance_type = "t2.micro"
   vpc_security_group_ids = [aws_security_group.attacker_sg.id]
   

