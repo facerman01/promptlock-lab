@@ -43,6 +43,8 @@ Invoke-WebRequest -Uri $url -OutFile $path
 
 # 2. Execute
 Start-Process -FilePath $path -Wait
+or 
+& $path     # to view what is running
 
 # 3. Clean up
 Remove-Item -Path $path
